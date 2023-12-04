@@ -121,7 +121,7 @@
                 <artifactId>gatling-maven-plugin</artifactId>
                 <version>4.6.0</version>
                 <configuration>
-                    <simulationClass>com.cas735.lab6.gatlingtests.WorkoutSimulation</simulationClass>
+                    <simulationClass>com.cas735.finalproject.gatlingtests.WorkoutSimulation</simulationClass>
                 </configuration>
             </plugin>
         </plugins>
