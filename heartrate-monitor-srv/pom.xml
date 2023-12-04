@@ -8,7 +8,7 @@
         <version>2.7.4</version>
         <relativePath/> <!-- lookup parent from repository -->
     </parent>
-    <groupId>com.cas735.lab6</groupId>
+    <groupId>com.cas735.finalproject</groupId>
     <artifactId>heartrate-monitor-srv</artifactId>
     <version>0.0.1-SNAPSHOT</version>
     <name>heartrate-monitor-srv</name>
