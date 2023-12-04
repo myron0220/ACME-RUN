@@ -10,7 +10,7 @@ import com.cas735.finalproject.heartratemonitorsrv.RabbitConfiguration;
 import com.cas735.finalproject.heartratemonitorsrv.business.entities.Heartrate;
 import com.cas735.finalproject.heartratemonitorsrv.dto.CreateWorkoutRequest;
 import com.cas735.finalproject.heartratemonitorsrv.dto.EndWorkoutRequest;
-import com.cas735.finalproject.heartratemonitorsrv.ports.BiometricService;
+import com.cas735.finalproject.heartratemonitorsrv.ports.HeartrateService;
 
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -31,16 +31,16 @@ import java.util.Random;
 
 @Slf4j
 @Service
-public class BiometricClient implements BiometricService {
+public class HeartrateClient implements HeartrateService {
     private final RabbitTemplate rabbitTemplate;
     private static final String ENDPOINT = "v1/workouts";
 
     //Eureka client to look up services
     private final EurekaClient registry;
-    private static final String APP_NAME = "BIOMETRIC-SERVICE";
+    private static final String APP_NAME = "game-center-service";
 
     @Autowired
-    public BiometricClient(RabbitTemplate rabbitTemplate, EurekaClient registry) {
+    public HeartrateClient(RabbitTemplate rabbitTemplate, EurekaClient registry) {
         this.rabbitTemplate = rabbitTemplate;
         this.registry = registry;
     }
@@ -67,11 +67,11 @@ public class BiometricClient implements BiometricService {
 
 
     @Override
-    public void sendHeartrate(Long workoutId, LocalDateTime dateTime, Integer heartrate) {
-        Heartrate newHeartrate = new Heartrate(workoutId, dateTime, heartrate);
+    public void sendHeartrate(Long workoutId, LocalDateTime dateTime, Integer heartrate, Double latitude, Double longitude) {
+        Heartrate newHeartrate = new Heartrate(workoutId, dateTime, heartrate, latitude, longitude);
         
-        rabbitTemplate.convertAndSend(RabbitConfiguration.EXCHANGE_NAME,
-            RabbitConfiguration.ROUTING_KEY, newHeartrate);
+        rabbitTemplate.convertAndSend(RabbitConfiguration.HEARTRATE_EXCHANGE_NAME,
+            RabbitConfiguration.HEARTRATE_ROUTING_KEY, newHeartrate);
     }
 
     @Override
@@ -87,7 +87,7 @@ public class BiometricClient implements BiometricService {
                     .retrieve().bodyToMono(Workout.class).block();
             return workoutResponse;
         } catch (IllegalStateException ex) {
-            log.error("No biometric service available!");
+            log.error("No game centre service available!");
             return null;
         } catch (WebClientException ex) {
             log.error("Communication Error while sending workout request");
@@ -106,7 +106,7 @@ public class BiometricClient implements BiometricService {
                     .body(BodyInserters.fromValue(endWorkoutRequest))
                     .retrieve().bodyToMono(String.class).block();
         } catch (IllegalStateException ex) {
-            log.error("No biometic service available!");
+            log.error("No game centre service available!");
         } catch (WebClientException ex) {
             log.error("Communication Error while sending workout request");
             log.error(ex.toString());

@@ -2,7 +2,7 @@ server:
   port: 9090
 spring:
   application:
-    name: biometric-service
+    name: game-center-service
   rabbitmq:
     port: 5672
     virtual-host: vhost

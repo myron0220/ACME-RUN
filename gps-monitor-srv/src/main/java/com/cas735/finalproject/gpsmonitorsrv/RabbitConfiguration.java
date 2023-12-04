@@ -1,4 +1,4 @@
-package com.cas735.finalproject.biometricsrv;
+package com.cas735.finalproject.gpsmonitorsrv;
 
 import org.springframework.amqp.support.converter.Jackson2JsonMessageConverter;
 import org.springframework.context.annotation.Bean;
@@ -7,13 +7,15 @@ import org.springframework.http.converter.json.Jackson2ObjectMapperBuilder;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
 
+
+
+
 @Configuration
 public class RabbitConfiguration {
 
-    public static final String QUEUE_NAME = "heartrate-queue";
-    public static final String EXCHANGE_NAME = "biometric-exchange";
+    public static final String GPS_EXCHANGE_NAME = "gps-exchange";
 
-    public static final String ROUTING_KEY = "biometric.heartrate.update";
+    public static final String GPS_ROUTING_KEY = "gps-routing";
 
     // https://stackoverflow.com/a/59970323
     @Bean

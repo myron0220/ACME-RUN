@@ -14,18 +14,18 @@ import com.cas735.finalproject.biometricsrv.business.entities.Heartrate;
 
 @Component
 @Slf4j
-public class BiometricListenController {
+public class HeartrateListenController {
 
     @Autowired
     private HeartrateManager heartrateManager;
 
     @RabbitListener(bindings = @QueueBinding(
-            value = @Queue(value = RabbitConfiguration.QUEUE_NAME, durable = "true"),
+            value = @Queue(value = RabbitConfiguration.HEARTRATE_QUEUE_NAME, durable = "true"),
             exchange = @Exchange(
-                    value = RabbitConfiguration.EXCHANGE_NAME, ignoreDeclarationExceptions = "true"),
-                    key = RabbitConfiguration.ROUTING_KEY))
+                    value = RabbitConfiguration.HEARTRATE_EXCHANGE_NAME, ignoreDeclarationExceptions = "true"),
+                    key = RabbitConfiguration.HEARTRATE_ROUTING_KEY))
     public void receiveHeartrateUpdate(Heartrate req) {
-        log.info("Reading message: '" + req + "'");
+        log.info("Reading heartrate: '" + req + "'");
         heartrateManager.create(req);
     }
 

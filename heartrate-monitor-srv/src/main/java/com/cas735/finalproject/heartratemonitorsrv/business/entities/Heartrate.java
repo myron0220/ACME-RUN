@@ -14,6 +14,10 @@ public class Heartrate {
     private @NonNull LocalDateTime dateTime; // date and time of the heart rate record
     private @NonNull Integer heartrate;
 
+    private @NonNull Double latitude;
+
+    private @NonNull Double longitude;
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;

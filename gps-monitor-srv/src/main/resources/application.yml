@@ -1,0 +1,11 @@
+server:
+port: 9092
+spring:
+  application:
+    name: gps-monitor-service
+  rabbitmq:
+    port: 5672
+    virtual-host: vhost
+    host: localhost
+    username: guest
+    password: guest
