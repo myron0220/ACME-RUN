@@ -1,0 +1,46 @@
+services:
+
+  biometric-srv:
+    container_name: biometric
+    build: ../biometric-srv
+    image: cschank/biometric-srv
+    environment:
+      - eureka.client.serviceUrl.defaultZone=http://eureka:8761/eureka
+      - spring.rabbitmq.host=rabbit-mq
+      - spring.rabbitmq.virtual-host=/
+    ports:
+      - "9090:9090"
+    depends_on:
+      - eureka
+      - rabbit-mq
+
+  heartrate-monitor-srv:
+    container_name: heartrate-monitor
+    build: ../heartrate-monitor-srv
+    image: cschank/heartrate-monitor-srv
+    environment:
+      - eureka.client.serviceUrl.defaultZone=http://eureka:8761/eureka
+      - spring.rabbitmq.host=rabbit-mq
+      - spring.rabbitmq.virtual-host=/
+    ports:
+      - "9091:9091"
+    depends_on:
+      - eureka
+      - rabbit-mq
+      - biometric-srv
+
+  eureka:
+    container_name: eureka
+    build: ../eureka-tech
+    image: cschank/eureka-tech
+    environment:
+      - eureka.instance.ipAddress="127.0.0.1"
+    ports:
+      - "8761:8761"
+
+  rabbit-mq:
+    container_name: rabbit-mq
+    image: rabbitmq:management
+    ports:
+      - "5672:5672"
+      - "15672:15672"

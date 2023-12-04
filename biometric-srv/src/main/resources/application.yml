@@ -1,0 +1,11 @@
+server:
+  port: 9090
+spring:
+  application:
+    name: biometric-service
+  rabbitmq:
+    port: 5672
+    virtual-host: vhost
+    host: localhost
+    username: guest
+    password: guest
