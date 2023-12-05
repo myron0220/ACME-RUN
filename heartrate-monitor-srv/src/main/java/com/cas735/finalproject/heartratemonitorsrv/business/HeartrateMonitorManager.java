@@ -25,6 +25,8 @@ public class HeartrateMonitorManager {
     Workout workout = null;
 
     Trail allocatedTrail = null;
+
+    String userName = null;
     Integer lastHeartrate = 72;
     private static final Integer MIN_HR = 60;  // minimum heartrate
     private static final Integer MAX_HR = 200; // maximum heartrate
@@ -42,7 +44,7 @@ public class HeartrateMonitorManager {
         Scanner scanner = new Scanner(System.in);
         log.info("------------------- Welcome to the ACMERUN APP -----------------");
         log.info("Please enter your username: ");
-        String userName = scanner.next();
+        this.userName = scanner.next();
 
         // register a new workout
         while (this.workout == null) {
@@ -97,6 +99,7 @@ public class HeartrateMonitorManager {
         heartrateService.sendHeartrate(workout.getId(),LocalDateTime.now(), heartrate, gps[0], gps[1]);
 
         log.info("------------------- curren state ---------------------");
+        log.info("user: " + this.userName);
         log.info("workout: " + workout.getId());
         log.info("heartrate: " + heartrate + "bpm");
         log.info("latitude: " + gps[0]);
