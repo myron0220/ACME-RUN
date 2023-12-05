@@ -1,0 +1,11 @@
+server:
+  port: 9091
+spring:
+  application:
+    name: score-update-service
+  rabbitmq:
+    port: 5672
+    virtual-host: vhost
+    host: localhost
+    username: guest
+    password: guest
