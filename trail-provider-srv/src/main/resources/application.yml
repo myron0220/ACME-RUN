@@ -1,0 +1,11 @@
+server:
+    port: 9092
+spring:
+    application:
+        name: trail-provider-service
+    rabbitmq:
+        port: 5672
+        virtual-host: vhost
+        host: localhost
+        username: guest
+        password: guest

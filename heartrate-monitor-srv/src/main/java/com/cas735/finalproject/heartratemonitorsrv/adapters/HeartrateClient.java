@@ -1,5 +1,8 @@
 package com.cas735.finalproject.heartratemonitorsrv.adapters;
 
+import com.cas735.finalproject.heartratemonitorsrv.business.entities.Location;
+import com.cas735.finalproject.heartratemonitorsrv.business.entities.Trail;
+import com.cas735.finalproject.heartratemonitorsrv.dto.TrailAllocationRequest;
 import lombok.extern.slf4j.Slf4j;
 
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
@@ -33,11 +36,15 @@ import java.util.Random;
 @Service
 public class HeartrateClient implements HeartrateService {
     private final RabbitTemplate rabbitTemplate;
-    private static final String ENDPOINT = "v1/workouts";
+
+    private static final String WORKOUT_ENDPOINT = "v1/workouts";
+
+    private static final String TRAIL_ENDPOINT = "v1/trail/allocate";
 
     //Eureka client to look up services
     private final EurekaClient registry;
-    private static final String APP_NAME = "game-center-service";
+    private static final String WORKOUT_APP_NAME = "game-center-service";
+    private static final String TRAIL_APP_NAME = "trail-provider-service";
 
     @Autowired
     public HeartrateClient(RabbitTemplate rabbitTemplate, EurekaClient registry) {
@@ -45,8 +52,8 @@ public class HeartrateClient implements HeartrateService {
         this.registry = registry;
     }
 
-    private WebClient buildClient() {
-        String url = locateExternalService();
+    private WebClient buildWorkoutClient() {
+        String url = locateExternalWorkoutService();
         log.info("** Using instance: " + url);
         return WebClient.builder()
                 .baseUrl(url)
@@ -54,8 +61,28 @@ public class HeartrateClient implements HeartrateService {
                 .build();
     }
 
-    private String locateExternalService() {
-        Application candidates = registry.getApplication(APP_NAME);
+    private WebClient buildTrailClient() {
+        String url = locateExternalTrailService();
+        log.info("** Using instance: " + url);
+        return WebClient.builder()
+                .baseUrl(url)
+                .defaultHeader(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
+                .build();
+    }
+
+    private String locateExternalWorkoutService() {
+        Application candidates = registry.getApplication(WORKOUT_APP_NAME);
+        if (Objects.isNull(candidates)) { // no email service in the registry
+            throw new IllegalStateException();
+        }
+        Random rand = new Random();
+        InstanceInfo infos = // Randomly picking one email service among candidates
+                candidates.getInstances().get(rand.nextInt(candidates.size()));
+        return "http://"+infos.getIPAddr()+":"+infos.getPort();
+    }
+
+    private String locateExternalTrailService() {
+        Application candidates = registry.getApplication(TRAIL_APP_NAME);
         if (Objects.isNull(candidates)) { // no email service in the registry
             throw new IllegalStateException();
         }
@@ -79,10 +106,10 @@ public class HeartrateClient implements HeartrateService {
         CreateWorkoutRequest createWorkoutRequest = new CreateWorkoutRequest(username, startDateTime);
         Workout workoutResponse;
         try {
-            WebClient webClient = buildClient();
+            WebClient webClient = buildWorkoutClient();
             workoutResponse = 
                 webClient.post()
-                    .uri(ENDPOINT)
+                    .uri(WORKOUT_ENDPOINT)
                     .body(BodyInserters.fromValue(createWorkoutRequest))
                     .retrieve().bodyToMono(Workout.class).block();
             return workoutResponse;
@@ -90,7 +117,7 @@ public class HeartrateClient implements HeartrateService {
             log.error("No game centre service available!");
             return null;
         } catch (WebClientException ex) {
-            log.error("Communication Error while sending workout request");
+            log.error("Communication Error while sending trail request");
             log.error(ex.toString());
             return null;
         }
@@ -100,9 +127,9 @@ public class HeartrateClient implements HeartrateService {
     public void endWorkout(Long workoutId, LocalDateTime endTime) {
         EndWorkoutRequest endWorkoutRequest = new EndWorkoutRequest(workoutId, endTime);
         try {
-            WebClient webClient = buildClient();
+            WebClient webClient = buildWorkoutClient();
             webClient.patch()
-                    .uri(ENDPOINT+"/"+endWorkoutRequest.getId().toString()+"/endtime")
+                    .uri(WORKOUT_ENDPOINT+"/"+endWorkoutRequest.getId().toString()+"/endtime")
                     .body(BodyInserters.fromValue(endWorkoutRequest))
                     .retrieve().bodyToMono(String.class).block();
         } catch (IllegalStateException ex) {
@@ -110,6 +137,27 @@ public class HeartrateClient implements HeartrateService {
         } catch (WebClientException ex) {
             log.error("Communication Error while sending workout request");
             log.error(ex.toString());
+        }
+    }
+
+    @Override
+    public Trail requestTrailAllocation(String username, Location location) {
+        TrailAllocationRequest trailAllocationRequest = new TrailAllocationRequest(username, LocalDateTime.now());
+        Trail trailResponse;
+        try {
+            WebClient webClient = buildTrailClient();
+            trailResponse =
+                    webClient.get()
+                            .uri(TRAIL_ENDPOINT)
+                            .retrieve().bodyToMono(Trail.class).block();
+            return trailResponse;
+        } catch (IllegalStateException ex) {
+            log.error("No trail allocation service available!");
+            return null;
+        } catch (WebClientException ex) {
+            log.error("Communication Error while sending trail request");
+            log.error(ex.toString());
+            return null;
         }
     }
 

@@ -1,7 +1,11 @@
 package com.cas735.finalproject.heartratemonitorsrv.business.entities;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.*;
+import org.hibernate.annotations.OnDelete;
+import org.hibernate.annotations.OnDeleteAction;
 
+import javax.persistence.*;
 import java.util.Objects;
 import java.time.LocalDateTime;
 
@@ -9,7 +13,6 @@ import java.time.LocalDateTime;
 @Getter @Setter
 @ToString
 public class Heartrate {
-
     private @NonNull Long workoutId;
     private @NonNull LocalDateTime dateTime; // date and time of the heart rate record
     private @NonNull Integer heartrate;

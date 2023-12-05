@@ -1,5 +1,7 @@
 package com.cas735.finalproject.heartratemonitorsrv.business;
 
+import com.cas735.finalproject.heartratemonitorsrv.business.entities.Location;
+import com.cas735.finalproject.heartratemonitorsrv.business.entities.Trail;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.util.Pair;
 import org.springframework.stereotype.Service;
@@ -7,6 +9,7 @@ import org.springframework.stereotype.Service;
 import java.util.Random;
 
 import java.time.LocalDateTime;
+import java.util.Scanner;
 
 import org.springframework.scheduling.annotation.Scheduled;
 
@@ -20,6 +23,8 @@ import javax.annotation.PreDestroy;
 public class HeartrateMonitorManager {
     HeartrateService heartrateService;
     Workout workout = null;
+
+    Trail allocatedTrail = null;
     Integer lastHeartrate = 72;
     private static final Integer MIN_HR = 60;  // minimum heartrate
     private static final Integer MAX_HR = 200; // maximum heartrate
@@ -34,10 +39,14 @@ public class HeartrateMonitorManager {
     // this module simulates a heartrate monitor by registering a new workout and then sending a bunch of heartrates, one per second, until it's turned off
     public HeartrateMonitorManager(HeartrateService heartrateService) {
         this.heartrateService = heartrateService;
+        Scanner scanner = new Scanner(System.in);
+        log.info("------------------- Welcome to the ACMERUN APP -----------------");
+        log.info("Please enter your username: ");
+        String userName = scanner.next();
 
         // register a new workout
         while (this.workout == null) {
-            this.workout = heartrateService.createWorkout("Chris", LocalDateTime.now());
+            this.workout = heartrateService.createWorkout(userName, LocalDateTime.now());
             // sleep for 1 second
             try {
                 Thread.sleep(1000);
@@ -45,27 +54,54 @@ public class HeartrateMonitorManager {
                 e.printStackTrace();
             }
         }
+
+        log.info("------------------------------------");
+        log.info("Sending workout start request...");
+        log.info("Receive workout response. " + workout.toString());
+        log.info("------------------------------------");
+
+        // request a new trail allocation
+        while (this.allocatedTrail == null) {
+            this.allocatedTrail = heartrateService.requestTrailAllocation(userName, new Location(32, -155));
+            // sleep for 1 second
+            try {
+                Thread.sleep(1000);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+        }
+
+        log.info("------------------------------------");
+        log.info("Sending trail allocation request...");
+        log.info("Receive trail response. " + allocatedTrail.toString());
+        log.info("------------------------------------");
     }
 
     @PreDestroy
     public void destroy() {
+        log.info("------------------------------------");
+        log.info("Sending workout end request...");
         heartrateService.endWorkout(this.workout.getId(), LocalDateTime.now());
+        log.info("Ended. May you enjoyed this training.");
+        log.info("------------------------------------");
     }
 
     @Scheduled(fixedRate=1000) // https://stackoverflow.com/a/36542208
     public void sendData() {
-            // if we don't have a workout yet, don't send any data
-            if (this.workout == null)
-                return;
+        // if we don't have a workout yet, don't send any data
+        if (this.workout == null)
+            return;
 
-            Integer heartrate = generateNextHeartrate();
-            double[] gps = generateNextGPS();
+        Integer heartrate = generateNextHeartrate();
+        double[] gps = generateNextGPS();
+        heartrateService.sendHeartrate(workout.getId(),LocalDateTime.now(), heartrate, gps[0], gps[1]);
 
-            log.info("Sending workout: " + workout.getId());
-            log.info("Sending heartrate: " + heartrate + "bpm");
-            log.info("Sending latitude: " + gps[0]);
-            log.info("Sending longitude: " + gps[1]);
-            heartrateService.sendHeartrate(workout.getId(), LocalDateTime.now(), heartrate, gps[0], gps[1]);
+        log.info("------------------- curren state ---------------------");
+        log.info("workout: " + workout.getId());
+        log.info("heartrate: " + heartrate + "bpm");
+        log.info("latitude: " + gps[0]);
+        log.info("longitude: " + gps[1]);
+        log.info("-------------------------------------------------------");
     }
 
     // Generates the next random heartrate in a sequence, from 60 to 200. 
