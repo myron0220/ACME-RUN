@@ -5,7 +5,7 @@ spring:
         name: attack-generation-service
     rabbitmq:
         port: 5672
-        virtual-host: vhost
+        virtual-host: /
         host: localhost
         username: guest
         password: guest
