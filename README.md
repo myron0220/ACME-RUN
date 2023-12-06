@@ -1,6 +1,36 @@
 # ACME-RUN
 You are working for ACME (A Company that Makes Everything), as part of their IT department. You have been contacted by a client named HammerCorp Inc. to design and develop a new game they want to launch in Fall 2024 on the North American market. 
 
+## How to start
+### Deploy locally
+Make sure RabbitMQ is running on port `5672` with channel `vhost`, username `guest`, password `guest`.
+Starting from the root folder.
+```
+cd eureka-tech
+mvn spring-boot:run&
+cd ..
+cd game-centre-srv
+mvn spring-boot:run&
+cd trail-provider-srv
+mvn spring-boot:run&
+cd point-srv
+mvn spring-boot:run&
+cd attack-generation-srv
+mvn spring-boot:run&
+```
+Then open a new terminal from the root folder
+```
+cd heartrate-monitor
+mvn spring-boot:run
+```
+The `heartrate-monitor` will act as the main UI for the `ACME-RUN` app.
+
+### Deploy with Docker
+```
+cd deployment
+docker-compose up
+``
+
 ## Description
 ### Game Center Service
 When the user sends a request and receives the request, he will first ask for the user's username. After it knows your username, it will try to send a request to the center. This request means that it can start in the workflow. It can be understood that our thing is the upper panel of the gym treadmill. It first asks the user to log in to the account. After logging in, you press start and your trial starts. It will first create a workout, which represents the training today, and then will next request a track. 
