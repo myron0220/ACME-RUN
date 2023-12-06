@@ -3,6 +3,7 @@ package com.cas735.finalproject.heartratemonitorsrv.business;
 import com.cas735.finalproject.heartratemonitorsrv.business.entities.Location;
 import com.cas735.finalproject.heartratemonitorsrv.business.entities.Trail;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.util.Pair;
 import org.springframework.stereotype.Service;
 
@@ -21,6 +22,9 @@ import javax.annotation.PreDestroy;
 @Service
 @Slf4j
 public class HeartrateMonitorManager {
+    @Autowired
+    AttackState attackState;
+
     HeartrateService heartrateService;
     Workout workout = null;
 
@@ -98,13 +102,15 @@ public class HeartrateMonitorManager {
         double[] gps = generateNextGPS();
         heartrateService.sendHeartrate(workout.getId(),LocalDateTime.now(), heartrate, gps[0], gps[1]);
 
-        log.info("------------------- curren state ---------------------");
-        log.info("user: " + this.userName);
-        log.info("workout: " + workout.getId());
-        log.info("heartrate: " + heartrate + "bpm");
-        log.info("latitude: " + gps[0]);
-        log.info("longitude: " + gps[1]);
-        log.info("-------------------------------------------------------");
+        if (!this.attackState.isIfBeingAttacked()) {
+            log.info("------------------- curren state ---------------------");
+            log.info("user: " + this.userName);
+            log.info("workout: " + workout.getId());
+            log.info("heartrate: " + heartrate + "bpm");
+            log.info("latitude: " + gps[0]);
+            log.info("longitude: " + gps[1]);
+            log.info("-------------------------------------------------------");
+        }
     }
 
     // Generates the next random heartrate in a sequence, from 60 to 200. 

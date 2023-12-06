@@ -1,4 +1,4 @@
-package com.cas735.finalproject.biometricsrv;
+package com.cas735.finalproject.attackgenerationsrv;
 
 import org.springframework.amqp.support.converter.Jackson2JsonMessageConverter;
 import org.springframework.context.annotation.Bean;
@@ -7,14 +7,12 @@ import org.springframework.http.converter.json.Jackson2ObjectMapperBuilder;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
 
+
 @Configuration
 public class RabbitConfiguration {
 
-    public static final String HEARTRATE_QUEUE_NAME = "heartrate-queue";
-    public static final String HEARTRATE_EXCHANGE_NAME = "heartrate-exchange";
-    public static final String HEARTRATE_ROUTING_KEY = "heartrate-routing";
-
-
+    public static final String ATTACK_EXCHANGE_NAME = "attack-exchange";
+    public static final String ATTACK_ROUTING_KEY = "attack-routing";
 
     // https://stackoverflow.com/a/59970323
     @Bean

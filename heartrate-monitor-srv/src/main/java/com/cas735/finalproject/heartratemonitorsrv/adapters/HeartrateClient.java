@@ -36,13 +36,12 @@ import java.util.Random;
 @Service
 public class HeartrateClient implements HeartrateService {
     private final RabbitTemplate rabbitTemplate;
+    private final EurekaClient registry; //Eureka client to look up services
 
     private static final String WORKOUT_ENDPOINT = "v1/workouts";
 
     private static final String TRAIL_ENDPOINT = "v1/trail/allocate";
 
-    //Eureka client to look up services
-    private final EurekaClient registry;
     private static final String WORKOUT_APP_NAME = "game-center-service";
     private static final String TRAIL_APP_NAME = "trail-provider-service";
 

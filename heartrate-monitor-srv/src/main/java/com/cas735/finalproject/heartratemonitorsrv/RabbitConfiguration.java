@@ -17,6 +17,12 @@ public class RabbitConfiguration {
 
     public static final String HEARTRATE_ROUTING_KEY = "heartrate-routing";
 
+    public static final String ATTACK_EXCHANGE_NAME = "attack-exchange";
+
+    public static final String ATTACK_QUEUE_NAME = "attack-queue";
+
+    public static final String ATTACK_ROUTING_KEY = "attack-routing";
+
     // https://stackoverflow.com/a/59970323
     @Bean
     public Jackson2JsonMessageConverter converter(Jackson2ObjectMapperBuilder builder) {

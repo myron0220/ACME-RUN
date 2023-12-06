@@ -25,7 +25,7 @@ public class HeartrateListenController {
                     value = RabbitConfiguration.HEARTRATE_EXCHANGE_NAME, ignoreDeclarationExceptions = "true"),
                     key = RabbitConfiguration.HEARTRATE_ROUTING_KEY))
     public void receiveHeartrateUpdate(Heartrate req) {
-        log.info("Reading heartrate: '" + req + "'");
+        log.info("Reading heartrate & position: '" + req + "'");
         heartrateManager.create(req);
     }
 
