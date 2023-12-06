@@ -20,13 +20,13 @@ public class UserController {
         return userService.getAllUsers();
     }
 
-    @GetMapping(ENDPOINT + "/{id}")
-    public Optional<User> getUserById(@PathVariable Long id) {
-        return userService.getUserById(id);
+    @GetMapping(ENDPOINT + "/{username}")
+    public Optional<User> getUserById(@PathVariable String username) {
+        return userService.getUserById(username);
     }
 
-    @PostMapping(ENDPOINT + "/{id}")
-    public User updateUserPoints(@PathVariable Long id, @RequestParam String username, @RequestParam int newPoints) {
-        return userService.updateUserPoints(id, username, newPoints);
+    @PostMapping(ENDPOINT)
+    public User updateUserPoints(@RequestParam String username, @RequestParam int newPoints) {
+        return userService.updateUserPoints(username, newPoints);
     }
 }

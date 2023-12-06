@@ -1,16 +1,14 @@
 package com.cas735.finalproject.heartratemonitorsrv.adapters;
 
-import com.cas735.finalproject.heartratemonitorsrv.business.entities.Location;
-import com.cas735.finalproject.heartratemonitorsrv.business.entities.Trail;
+import com.cas735.finalproject.heartratemonitorsrv.business.entities.*;
 import com.cas735.finalproject.heartratemonitorsrv.dto.TrailAllocationRequest;
+import com.cas735.finalproject.heartratemonitorsrv.dto.UpdateUserScoreRequest;
 import lombok.extern.slf4j.Slf4j;
 
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.stereotype.Service;
 
-import com.cas735.finalproject.heartratemonitorsrv.business.entities.Workout;
 import com.cas735.finalproject.heartratemonitorsrv.RabbitConfiguration;
-import com.cas735.finalproject.heartratemonitorsrv.business.entities.Heartrate;
 import com.cas735.finalproject.heartratemonitorsrv.dto.CreateWorkoutRequest;
 import com.cas735.finalproject.heartratemonitorsrv.dto.EndWorkoutRequest;
 import com.cas735.finalproject.heartratemonitorsrv.ports.HeartrateService;
@@ -42,8 +40,12 @@ public class HeartrateClient implements HeartrateService {
 
     private static final String TRAIL_ENDPOINT = "v1/trail/allocate";
 
+    private static final String USERSCORE_ENDPOINT = "v1/user";
+
     private static final String WORKOUT_APP_NAME = "game-center-service";
     private static final String TRAIL_APP_NAME = "trail-provider-service";
+
+    private static final String USERSCORE_APP_NAME = "point-service";
 
     @Autowired
     public HeartrateClient(RabbitTemplate rabbitTemplate, EurekaClient registry) {
@@ -69,6 +71,15 @@ public class HeartrateClient implements HeartrateService {
                 .build();
     }
 
+    private WebClient buildUserScoreClient() {
+        String url = locateExternalUserScoreService();
+        log.info("** Using instance: " + url);
+        return WebClient.builder()
+                .baseUrl(url)
+                .defaultHeader(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
+                .build();
+    }
+
     private String locateExternalWorkoutService() {
         Application candidates = registry.getApplication(WORKOUT_APP_NAME);
         if (Objects.isNull(candidates)) { // no email service in the registry
@@ -82,6 +93,17 @@ public class HeartrateClient implements HeartrateService {
 
     private String locateExternalTrailService() {
         Application candidates = registry.getApplication(TRAIL_APP_NAME);
+        if (Objects.isNull(candidates)) {
+            throw new IllegalStateException();
+        }
+        Random rand = new Random();
+        InstanceInfo infos = // Randomly picking one email service among candidates
+                candidates.getInstances().get(rand.nextInt(candidates.size()));
+        return "http://"+infos.getIPAddr()+":"+infos.getPort();
+    }
+
+    private String locateExternalUserScoreService() {
+        Application candidates = registry.getApplication(USERSCORE_APP_NAME);
         if (Objects.isNull(candidates)) { // no email service in the registry
             throw new IllegalStateException();
         }
@@ -136,6 +158,41 @@ public class HeartrateClient implements HeartrateService {
         } catch (WebClientException ex) {
             log.error("Communication Error while sending workout request");
             log.error(ex.toString());
+        }
+    }
+
+    @Override
+    public void updateUserScore(String username, int newPoint) {
+        UpdateUserScoreRequest updateUserScoreRequest = new UpdateUserScoreRequest(username, LocalDateTime.now());
+        try {
+            WebClient webClient = buildUserScoreClient();
+            webClient.post()
+                    .uri(USERSCORE_ENDPOINT + "?username=" + username + "&newPoints=" + newPoint)
+                    .retrieve().bodyToMono(String.class).block();
+        } catch (IllegalStateException ex) {
+            log.error("No point service available!");
+        } catch (WebClientException ex) {
+            log.error("Communication Error while sending update user score request");
+            log.error(ex.toString());
+        }
+    }
+
+    @Override
+    public User findUserScore(String username) {
+        UpdateUserScoreRequest updateUserScoreRequest = new UpdateUserScoreRequest(username, LocalDateTime.now());
+        try {
+            WebClient webClient = buildUserScoreClient();
+            User userResponse = webClient.get()
+                    .uri(USERSCORE_ENDPOINT + "/" + username)
+                    .retrieve().bodyToMono(User.class).block();
+            return  userResponse;
+        } catch (IllegalStateException ex) {
+            log.error("No point service available!");
+            return null;
+        } catch (WebClientException ex) {
+            log.error("Communication Error while sending update user score request");
+            log.error(ex.toString());
+            return null;
         }
     }
 

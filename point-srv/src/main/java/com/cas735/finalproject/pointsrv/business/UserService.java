@@ -19,19 +19,20 @@ public class UserService {
         return userRepository.findAll();
     }
 
-    public Optional<User> getUserById(Long id) {
-        return userRepository.findById(id);
+    public Optional<User> getUserById(String username) {
+        return userRepository.findById(username);
     }
 
-    public User updateUserPoints(Long id, String username, int newPoints) {
-        Optional<User> optionalUser = userRepository.findById(id);
+    public User updateUserPoints(String username, int newPoints) {
+        Optional<User> optionalUser = userRepository.findById(username);
         if (optionalUser.isPresent()) {
             User user = optionalUser.get();
             user.setPoints(newPoints);
+            log.info("Updated: " + user);
             return userRepository.save(user);
         } else {
-            User newUser = new User(id, username, newPoints);
-            log.info("Inserted :" + newUser);
+            User newUser = new User(username, newPoints);
+            log.info("Inserted: " + newUser);
             return userRepository.save(newUser);
         }
     }

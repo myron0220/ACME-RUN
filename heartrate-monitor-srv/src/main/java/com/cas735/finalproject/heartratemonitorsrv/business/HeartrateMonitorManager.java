@@ -2,6 +2,7 @@ package com.cas735.finalproject.heartratemonitorsrv.business;
 
 import com.cas735.finalproject.heartratemonitorsrv.business.entities.Location;
 import com.cas735.finalproject.heartratemonitorsrv.business.entities.Trail;
+import com.cas735.finalproject.heartratemonitorsrv.business.entities.User;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.util.Pair;
@@ -45,6 +46,8 @@ public class HeartrateMonitorManager {
     // this module simulates a heartrate monitor by registering a new workout and then sending a bunch of heartrates, one per second, until it's turned off
     public HeartrateMonitorManager(HeartrateService heartrateService) {
         this.heartrateService = heartrateService;
+        if (this.attackState != null) this.attackState.setNotAttacked();
+
         Scanner scanner = new Scanner(System.in);
         log.info("------------------- Welcome to the ACMERUN APP -----------------");
         log.info("Please enter your username: ");
@@ -86,8 +89,22 @@ public class HeartrateMonitorManager {
     @PreDestroy
     public void destroy() {
         log.info("------------------------------------");
-        log.info("Sending workout end request...");
+        int curScore = 0;
+        User userResponse = heartrateService.findUserScore(userName);
+        if (userResponse != null) {
+            curScore = userResponse.getPoints();
+        }
+        int deltaScore = 100; // for test reason, the score has a fixed data for now
+        heartrateService.updateUserScore(userName, curScore + deltaScore);
+        log.info("Congratulations! " + userName + ", you have earned " + deltaScore + " points for this workout.");
+        log.info("Previous score: " + curScore);
+        log.info("Current score: " + (curScore + deltaScore));
+        log.info("------------------------------------");
+
+
+        log.info("------------------------------------");
         heartrateService.endWorkout(this.workout.getId(), LocalDateTime.now());
+        log.info("Sending workout end request...");
         log.info("Ended. May you enjoyed this training.");
         log.info("------------------------------------");
     }

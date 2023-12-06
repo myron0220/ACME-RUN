@@ -1,4 +1,4 @@
-package com.cas735.finalproject.pointsrv.business.entities;
+package com.cas735.finalproject.heartratemonitorsrv.business.entities;
 
 import lombok.*;
 
