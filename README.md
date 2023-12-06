@@ -12,10 +12,13 @@ mvn spring-boot:run&
 cd ..
 cd game-centre-srv
 mvn spring-boot:run&
+cd ..
 cd trail-provider-srv
 mvn spring-boot:run&
+cd ..
 cd point-srv
 mvn spring-boot:run&
+cd ..
 cd attack-generation-srv
 mvn spring-boot:run&
 ```
