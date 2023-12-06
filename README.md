@@ -1,8 +1,9 @@
 # ACME-RUN
 You are working for ACME (A Company that Makes Everything), as part of their IT department. You have been contacted by a client named HammerCorp Inc. to design and develop a new game they want to launch in Fall 2024 on the North American market. 
 
-## How to start
-### Deploy locally
+## How to start  
+
+#### Deploy locally
 Make sure RabbitMQ is running on port `5672` with channel `vhost`, username `guest`, password `guest`.
 Starting from the root folder.
 ```
@@ -24,8 +25,8 @@ cd heartrate-monitor
 mvn spring-boot:run
 ```
 The `heartrate-monitor` will act as the main UI for the `ACME-RUN` app.
-
-### Deploy with Docker
+  
+#### Deploy with Docker
 ```
 cd deployment
 docker-compose up
