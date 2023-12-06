@@ -5,7 +5,7 @@ spring:
         name: trail-provider-service
     rabbitmq:
         port: 5672
-        virtual-host: /
+        virtual-host: vhost
         host: localhost
         username: guest
         password: guest
