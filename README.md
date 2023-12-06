@@ -33,7 +33,7 @@ The `heartrate-monitor` will act as the main UI for the `ACME-RUN` app.
 ```
 cd deployment
 docker-compose up
-``
+```
 
 ## Description
 ### Game Center Service
