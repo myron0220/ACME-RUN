@@ -51,6 +51,4 @@ As the user is working out, the heart rate and some other information of workout
 ### Attack Generator Service
 As the user is working out, the attack service will generate some attacks to users and provide several options for users to respond to the attack. Messages of the attack will be sent with RabbitMQ to heart rate monitor.
 
-## Deployment
 
-## Application
